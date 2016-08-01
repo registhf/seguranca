@@ -1,2 +1,2 @@
-# seguranca
-Trabalhos de Segurança
+# Seguranca
+Trabalhos da disciplina de Segurança e auditoria de sistemas
