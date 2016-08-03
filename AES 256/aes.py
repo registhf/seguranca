@@ -1,5 +1,7 @@
 from Crypto import Random
 from Crypto.Cipher import AES
+import binascii
+import base64
 import sys
 
 
@@ -16,5 +18,7 @@ msg = init + cipher.encrypt(word)
 back = cipher.decrypt(msg)
 
 print('Encrypt: ' + str(msg)[1:])
-print('Decrypt: ' + str(back[AES.block_size:])[1:]) # remove o tamanho do bloco concatenado
+print('  Clean: ' + str(binascii.hexlify(msg)))
+print(' Base64: ' + str(base64.b64encode(msg)))
+print('Decrypt: ' + str(back[AES.block_size:])) # remove o tamanho do bloco concatenado
 
