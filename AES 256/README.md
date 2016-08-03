@@ -1,2 +1,2 @@
 ## Utilização:
-$ python3 aes.py {chave} {texto}
+`$ python3 aes.py {chave} {texto}`
