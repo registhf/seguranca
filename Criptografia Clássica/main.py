@@ -6,7 +6,7 @@ from transposicao import transposicao, detransposicao
 from substituicao import substituicao, desubstituicao
 
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile
 
 def readbytes(file):
 	return np.array([b for b in open(file, 'rb').read()])
@@ -27,40 +27,58 @@ subs_total = 0
 
 testfiles = listdir('testcases/outputs')
 
+inputfiles = {}
+for ifile in listdir('testcases/inputs'):
+	inputfiles[ifile[0]] = readbytes('testcases/inputs/' + ifile)
+
 
 for ofile in testfiles:
 	total += 1
-	print('\rTestando: ', ofile, ' ' * 30, '\t' * 3, total, '/', len(testfiles), ' '*20, end="")
 	N, name, cipher, key = ofile.split('.')
-	if key == 'X' or key == 'Y':
-		continue
-	elif key.startswith('key'):
-		key = open('testcases/' + key, 'rb').read()
 	
-	inputfile = readbytes('testcases/inputs/' + N + '.' + name)
+	if key.startswith('key'):
+		key = open('testcases/' + key, 'rb').read()
+
+	inputfile = inputfiles[N]
 	outputfile = readbytes('testcases/outputs/' + ofile)
 	
+	enc = ''
 	if cipher == 'ceasar':
-			ceasar_total += 1
+		ceasar_total += 1
+		if key == 'X' or key == 'Y':
+			for key in range(256):
+				enc = ceasar(inputfile, key)
+				if np.array(enc == outputfile).mean() == 1:
+					print('Chave de Ceasar descoberta no arquivo:', ofile, '=', key)
+					ceasar_ok += 1
+					break
+		else:
 			enc = ceasar(inputfile, int(key))
 			ceasar_ok += (np.array(enc == outputfile).mean() == 1)
 
 	elif cipher == 'vig':
+		if key == 'X' or key == 'Y':
+			continue
 		vig_total += 1
 		enc = vigenere(inputfile, key.encode('ascii'))
 		vig_ok += (np.array(enc == outputfile).mean() == 1)
 
 	elif cipher == 'transp':
+		if key == 'X' or key == 'Y':
+			continue
 		transp_total += 1
 		enc = transposicao(inputfile, int(key))
 		transp_ok += (np.array(enc == outputfile).mean() == 1)
 
 	elif cipher == 'subs':
+		if key == 'X' or key == 'Y':
+			continue
 		subs_total += 1
 		enc = substituicao(inputfile, key)
 		subs_ok += (np.array(enc == outputfile).mean() == 1)
-		if (np.array(enc == outputfile).mean() != 1):
-			print('\nFalha na substituição: ', ofile, '\n')
+	
+	if np.array(enc == outputfile).mean() != 1:
+		print('\nFalha no arquivo: ', ofile, '\n')	
 
 
 
