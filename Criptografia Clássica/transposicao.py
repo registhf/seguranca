@@ -3,14 +3,14 @@ import numpy as np
 def transposicao(textBytes, k):
 	m = []
 	n = 0
-	l = np.zeros(k).astype(int) + 0x20
+	l = np.zeros(k).astype(int)
 	for b in textBytes:
 		if n < k:
 			l[n] = b
 			n += 1
 		else:
 			m.append(l)
-			l = np.zeros(k).astype(int) + 0x20
+			l = np.zeros(k).astype(int)
 			l[0] = b
 			n = 1
 	
@@ -26,14 +26,14 @@ def detransposicao(textBytes, k):
 	k = int(len(textBytes)/k)
 	m = []
 	n = 0
-	l = np.zeros(k).astype(int) + 0x20
+	l = np.zeros(k).astype(int)
 	for b in textBytes:
 		if n < k:
 			l[n] = b
 			n += 1
 		else:
 			m.append(l)
-			l = np.zeros(k).astype(int) + 0x20
+			l = np.zeros(k).astype(int)
 			l[0] = b
 			n = 1
 	
