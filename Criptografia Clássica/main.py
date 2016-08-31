@@ -46,10 +46,12 @@ for ofile in testfiles:
 	if cipher == 'ceasar':
 		ceasar_total += 1
 		if key == 'X' or key == 'Y':
+			print('Procurando chave do arquivo', ofile, '...', end="")
+			sys.stdout.flush()
 			for key in range(256):
 				enc = ceasar(inputfile, key)
 				if np.array(enc == outputfile).mean() == 1:
-					print('Chave de Ceasar descoberta no arquivo:', ofile, '=', key)
+					print('Chave descoberta =', key)
 					ceasar_ok += 1
 					break
 		else:
@@ -65,10 +67,18 @@ for ofile in testfiles:
 
 	elif cipher == 'transp':
 		if key == 'X' or key == 'Y':
-			continue
-		transp_total += 1
-		enc = transposicao(inputfile, int(key))
-		transp_ok += (np.array(enc == outputfile).mean() == 1)
+			print('Procurando chave do arquivo', ofile, '...', end="")
+			sys.stdout.flush()
+			for key in range(1, 256):
+				enc = transposicao(inputfile, int(key))
+				if np.array(enc == outputfile).mean() == 1:
+					print('Chave descoberta =', key)
+					transp_ok += 1
+					break
+		else:
+			transp_total += 1
+			enc = transposicao(inputfile, int(key))
+			transp_ok += (np.array(enc == outputfile).mean() == 1)
 
 	elif cipher == 'subs':
 		if key == 'X' or key == 'Y':
