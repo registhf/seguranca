@@ -14,6 +14,7 @@ file = open(sys.argv[2]).read()
 hsh = sha256(file.encode('utf-8')).hexdigest()
 
 if sys.argv[1] == 'generate':
+	
 	random = Random.new().read
 	key = RSA.generate(2048, random)
 	public_key = key.publickey()
