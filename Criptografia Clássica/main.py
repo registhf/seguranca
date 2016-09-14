@@ -41,12 +41,12 @@ for ofile in testfiles:
 
 	inputfile = inputfiles[N]
 	outputfile = readbytes('testcases/outputs/' + ofile)
-	
+
 	enc = ''
 	if cipher == 'ceasar':
 		ceasar_total += 1
 		if key == 'X' or key == 'Y':
-			print('Procurando chave do arquivo', ofile, '...', end="")
+			print('Procurando chave do arquivo (Tem que achar: ', outputfile[0]-inputfile[0],')', ofile, '...', end="")
 			sys.stdout.flush()
 			for key in range(256):
 				enc = ceasar(inputfile, key)
@@ -59,13 +59,27 @@ for ofile in testfiles:
 			ceasar_ok += (np.array(enc == outputfile).mean() == 1)
 
 	elif cipher == 'vig':
-		if key == 'X' or key == 'Y':
-			continue
 		vig_total += 1
-		enc = vigenere(inputfile, key.encode('ascii'))
-		vig_ok += (np.array(enc == outputfile).mean() == 1)
+		if key == 'X' or key == 'Y':
+			print('Procurando chave do arquivo', ofile, '...', end="")
+			sys.stdout.flush()
+			sub = np.array(outputfile - inputfile)
+			for k in range(1, 30):
+				sys.stdout.flush()
+				candidate = sub[0:k]
+				full = np.array([int(x) for x in ((",".join(str(x) + ',' for x in candidate)) * (int(len(sub)/k)+1)).split(',') if len(x) > 0])[0:len(sub)]
+				compare = np.array(full == sub)
+				if 1-compare.mean() < 10**-2:
+					print('Chave descoberta = ', "".join([chr(x) for x in candidate]))
+					vig_ok += 1
+					enc = vigenere(inputfile, candidate)
+					break
+		else:
+			enc = vigenere(inputfile, key.encode('ascii'))
+			vig_ok += (np.array(enc == outputfile).mean() == 1)
 
 	elif cipher == 'transp':
+		transp_total += 1
 		if key == 'X' or key == 'Y':
 			print('Procurando chave do arquivo', ofile, '...', end="")
 			sys.stdout.flush()
@@ -76,7 +90,6 @@ for ofile in testfiles:
 					transp_ok += 1
 					break
 		else:
-			transp_total += 1
 			enc = transposicao(inputfile, int(key))
 			transp_ok += (np.array(enc == outputfile).mean() == 1)
 
