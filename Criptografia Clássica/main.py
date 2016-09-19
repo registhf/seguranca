@@ -94,14 +94,26 @@ for ofile in testfiles:
 			transp_ok += (np.array(enc == outputfile).mean() == 1)
 
 	elif cipher == 'subs':
-		if key == 'X' or key == 'Y':
-			continue
 		subs_total += 1
+		if key == 'X' or key == 'Y':
+			print('Gerando chave do arquivo:', ofile, '...', end="")
+			sys.stdout.flush()
+			search = [i for i in range(256)]
+			key = [0 for i in range(256)]
+			i = 0
+			for a in inputfile:
+				key[search.index(a)] = outputfile[i]
+				i += 1
+			print('Chave gerada!', end="")
+			sys.stdout.flush()
+
 		enc = substituicao(inputfile, key)
 		subs_ok += (np.array(enc == outputfile).mean() == 1)
 	
 	if np.array(enc == outputfile).mean() != 1:
 		print('\nFalha no arquivo: ', ofile, '\n')	
+	else:
+		print(ofile, '... Ok!')
 
 
 
