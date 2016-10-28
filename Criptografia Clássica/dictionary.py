@@ -21,7 +21,6 @@ class dictFromFiles:
             print('\rDictionary length:', len(self.dictionary), 'loaded from cache', end="")
 
 
-
     def __loadDictFromFiles(self):
         files = sorted(listdir(self.folder))
         cnt = 1
@@ -40,15 +39,14 @@ class dictFromFiles:
                 cnt += 1
 
 
-
     def build(self, output=None):
         if exists(output):
             self.__loadDictFromCache(output)
         else:
             self.__loadDictFromFiles()
             if not output is None:
-                o = open(output, 'w')
-                o.write('\n'.join(self.dictionary))
+                with open(output, 'w') as o:
+                    o.write('\n'.join(self.dictionary))
 
         print('...OK')
         return self.dictionary
@@ -60,6 +58,7 @@ class dictFromFiles:
             self.dictionary = self.dictionary.union(set(words))
         except UnicodeDecodeError:
             pass
+        
         return self.dictionary
 
 
