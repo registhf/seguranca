@@ -1,25 +1,27 @@
 import numpy as np
 import operator
-import sys
 from os import listdir
 from os.path import isfile
 from dictionary import dictFromFiles
 from ceasar import deceasar
 from vigenere import devigenere
+from transposicao import detransposicao
+from time import time
 
 
 inputsfolder = 'testcases/inputs/'
 ouputsfolder = 'testcases/outputs/'
 
-def readbytes(file):
-    bytes_len = 100 if len(sys.argv) < 2 else int(sys.argv[1])
-    return np.array([b for b in open(file, 'rb').read(bytes_len)])
+def readbytes(file, cipher):
+    return np.array(
+        [b for b in open(file, 'rb').read(550 if cipher != 'transp' else None)]
+    )
 
 
 GLOBAL_DICT = dictFromFiles(inputsfolder)
 dictionary = GLOBAL_DICT.build('forcaBrutaDict.txt')
 
-testfiles = listdir(ouputsfolder)
+testfiles = sorted(listdir(ouputsfolder))
 
 total = 0
 for ofile in testfiles:
@@ -27,11 +29,13 @@ for ofile in testfiles:
     if not isfile(path):
         continue
     
-    outputfile = readbytes(path)
+    start = time()
     total += 1
     N, name, cipher, key = ofile.split('.')
+    
+    outputfile = readbytes(path, cipher)
 
-    if cipher not in ['vig', 'ceasar']: continue
+    if cipher not in ['vig', 'ceasar', 'transp']: continue
     
     print('File:', '...' + path[-20:], end="\t| ")
     
@@ -46,11 +50,6 @@ for ofile in testfiles:
 
             ranking[k] = GLOBAL_DICT.countEquals(encDict)    
             
-        s = sorted(ranking.items(), key=operator.itemgetter(1))
-
-        print('Most likely key:', str(s[-1][0]), ' ' * (12-len(str(s[-1][0]))), '\t: ', end="")
-        print(str(round(s[-1][1]/len(GLOBAL_DICT.dictionary)*100, 3)) + '%')
-
     elif cipher == 'vig':
         with open('vigDict.keys') as v:
             vigKeys = set(v.read().split('\n'))
@@ -70,8 +69,22 @@ for ofile in testfiles:
             encDict = testDict.process(text)
 
             ranking[k] = GLOBAL_DICT.countEquals(encDict)
+
+    elif cipher == 'transp':
+        for k in range(1, 256):
+            enc = detransposicao(outputfile, k)
+            text = ''.join([chr(a) for a in enc])
             
-        s = sorted(ranking.items(), key=operator.itemgetter(1))
+            testDict = dictFromFiles()
+            encDict = testDict.process(text)
+
+            ranking[k] = GLOBAL_DICT.countEquals(encDict) 
+
             
-        print('Most likely key:', str(s[-1][0]), ' ' * (12-len(str(s[-1][0]))), '\t: ', end="")
-        print(str(round(s[-1][1]/len(GLOBAL_DICT.dictionary)*100, 3)) + '%')
+    s = sorted(ranking.items(), key=operator.itemgetter(1))
+        
+    percent = str(round(s[-1][1]/len(GLOBAL_DICT.dictionary)*100, 3))
+    elapsed = str(round((time()-start), 3)) + 's'
+    
+    print('Most likely key:', str(s[-1][0]), ' ' * (15-len(str(s[-1][0]))), end="")
+    print(percent + '%', ' ' * (8-len(percent)), '| time:', ' ' * (9-len(elapsed)), elapsed)
