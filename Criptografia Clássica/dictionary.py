@@ -11,7 +11,7 @@ class dictFromFiles:
         if folder and not folder.endswith('/'):
             folder += '/'
         self.folder = folder
-        self.dictionary = set([])
+        self.dictionary = set()
 
 
     def __loadDictFromCache(self, output):
